@@ -98,8 +98,8 @@ contract TestPeripheryDepositWithdraw is TestBasePeriphery {
     struct TestDepositIntentFuzz {
         uint256 amount;
         bool all;
-        uint256 bribe;
-        uint256 relayerTip;
+        uint128 bribe;
+        uint128 relayerTip;
     }
 
     function boundIntentParams(TestDepositIntentFuzz memory fuzz)
@@ -110,7 +110,7 @@ contract TestPeripheryDepositWithdraw is TestBasePeriphery {
         vm.assume(
             fuzz.amount > depositModule.getGlobalAssetPolicy(address(mockToken1)).minimumDeposit + 1
         );
-        vm.assume(fuzz.amount < type(uint144).max);
+        vm.assume(fuzz.amount < type(uint128).max);
 
         vm.assume(fuzz.bribe < fuzz.amount / 6);
         vm.assume(fuzz.relayerTip < fuzz.amount / 6);
@@ -139,7 +139,7 @@ contract TestPeripheryDepositWithdraw is TestBasePeriphery {
             fuzz.all ? type(uint256).max : fuzz.amount,
             fuzz.relayerTip,
             fuzz.bribe,
-            periphery.getAccountNonce(accountId)
+            periphery.nonces(alice, uint192(accountId))
         );
 
         vm.startPrank(relayer);
@@ -164,6 +164,8 @@ contract TestPeripheryDepositWithdraw is TestBasePeriphery {
         uint256 accountId,
         uint256 sharesOut
     ) private returns (uint256 assetOut) {
+        uint256 nonce = periphery.nonces(alice, uint192(accountId));
+
         vm.startPrank(relayer);
         assetOut = periphery.intentWithdraw(
             signedWithdrawIntent(
@@ -175,7 +177,7 @@ contract TestPeripheryDepositWithdraw is TestBasePeriphery {
                 fuzz.all ? type(uint256).max : sharesOut,
                 fuzz.relayerTip,
                 fuzz.bribe,
-                periphery.getAccountNonce(accountId)
+                nonce
             )
         );
         vm.stopPrank();

@@ -79,7 +79,7 @@ contract TestPeripheryPermissions is TestBasePeriphery {
             type(uint256).max,
             0,
             0,
-            periphery.getAccountNonce(1)
+            periphery.nonces(alice, uint192(1))
         );
 
         vm.prank(relayer);
@@ -100,7 +100,7 @@ contract TestPeripheryPermissions is TestBasePeriphery {
             type(uint256).max,
             0,
             0,
-            periphery.getAccountNonce(1)
+            periphery.nonces(alice, uint192(1))
         );
 
         vm.prank(relayer);

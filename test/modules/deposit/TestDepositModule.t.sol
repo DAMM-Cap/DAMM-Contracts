@@ -19,7 +19,7 @@ contract TestDepositModule is TestBaseDeposit {
 
     function test_deposit(uint256 amount)
         public
-        withRole(alice, CONTROLLER_ROLE)
+        withRole(alice, DEPOSITOR_ROLE)
         maxApproveDepositModule(alice, address(mockToken1))
     {
         amount = bound(
@@ -43,7 +43,7 @@ contract TestDepositModule is TestBaseDeposit {
 
     function test_cannot_deposit_amount_that_is_below_minimum_deposit(uint256 amount)
         public
-        withRole(alice, CONTROLLER_ROLE)
+        withRole(alice, DEPOSITOR_ROLE)
         maxApproveDepositModule(alice, address(mockToken1))
     {
         amount = bound(
@@ -56,7 +56,7 @@ contract TestDepositModule is TestBaseDeposit {
         vm.stopPrank();
     }
 
-    function test_cannot_deposit_zero_amount() public withRole(alice, CONTROLLER_ROLE) {
+    function test_cannot_deposit_zero_amount() public withRole(alice, DEPOSITOR_ROLE) {
         vm.startPrank(alice);
         vm.expectRevert(Errors.Deposit_InsufficientDeposit.selector);
         depositModule.deposit(address(mockToken1), 0, 0, alice);
@@ -65,7 +65,7 @@ contract TestDepositModule is TestBaseDeposit {
 
     function test_deposit_slippage_limit_is_exceeded(uint256 amount)
         public
-        withRole(alice, CONTROLLER_ROLE)
+        withRole(alice, DEPOSITOR_ROLE)
         maxApproveDepositModule(alice, address(mockToken1))
     {
         amount = bound(
@@ -84,7 +84,8 @@ contract TestDepositModule is TestBaseDeposit {
 
     function test_withdraw(uint256 amount)
         public
-        withRole(alice, CONTROLLER_ROLE)
+        withRole(alice, DEPOSITOR_ROLE)
+        withRole(alice, WITHDRAWER_ROLE)
         maxApproveDepositModule(alice, address(mockToken1))
         maxApproveDepositModule(alice, address(internalVault))
     {
@@ -119,7 +120,8 @@ contract TestDepositModule is TestBaseDeposit {
 
     function test_cannot_withdraw_amount_that_is_below_minimum_withdrawal()
         public
-        withRole(alice, CONTROLLER_ROLE)
+        withRole(alice, DEPOSITOR_ROLE)
+        withRole(alice, WITHDRAWER_ROLE)
         maxApproveDepositModule(alice, address(mockToken1))
         maxApproveDepositModule(alice, address(internalVault))
     {
@@ -134,7 +136,7 @@ contract TestDepositModule is TestBaseDeposit {
         vm.stopPrank();
     }
 
-    function test_cannot_withdraw_zero_amount() public withRole(alice, CONTROLLER_ROLE) {
+    function test_cannot_withdraw_zero_amount() public withRole(alice, WITHDRAWER_ROLE) {
         vm.startPrank(alice);
         vm.expectRevert(Errors.Deposit_InsufficientWithdrawal.selector);
         depositModule.withdraw(address(mockToken1), 0, 0, alice);
@@ -143,7 +145,8 @@ contract TestDepositModule is TestBaseDeposit {
 
     function test_withdraw_slippage_limit_is_exceeded(uint256 amount)
         public
-        withRole(alice, CONTROLLER_ROLE)
+        withRole(alice, DEPOSITOR_ROLE)
+        withRole(alice, WITHDRAWER_ROLE)
         maxApproveDepositModule(alice, address(mockToken1))
         maxApproveDepositModule(alice, address(internalVault))
     {
@@ -164,7 +167,7 @@ contract TestDepositModule is TestBaseDeposit {
         vm.stopPrank();
     }
 
-    function test_dilute(uint256 amount) public withRole(alice, CONTROLLER_ROLE) {
+    function test_dilute(uint256 amount) public withRole(alice, DILUTER_ROLE) {
         amount = bound(amount, 1, type(uint256).max);
 
         vm.prank(alice);

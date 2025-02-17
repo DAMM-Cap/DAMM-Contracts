@@ -13,7 +13,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-
+import "@openzeppelin/contracts-upgradeable/utils/NoncesKeyedUpgradeable.sol";
 import "@src/libs/Errors.sol";
 import "@zodiac/interfaces/IAvatar.sol";
 import "@src/interfaces/IPeriphery.sol";
@@ -41,6 +41,7 @@ contract Periphery is
     AccessControlUpgradeable,
     PausableUpgradeable,
     ReentrancyGuardUpgradeable,
+    NoncesKeyedUpgradeable,
     IPeriphery
 {
     using DepositLibs for BrokerAccountInfo;
@@ -114,6 +115,7 @@ contract Periphery is
         }
 
         _transferOwnership(owner_);
+        __NoncesKeyed_init();
         __Pausable_init();
         __ReentrancyGuard_init();
         __AccessControl_init();
@@ -163,12 +165,16 @@ contract Periphery is
 
         _validateBrokerAssetPolicy(order.intent.deposit.asset, broker, true);
 
+        /// consume nonce. get back keyNonce and shift it to the left by 192 bits to get nonce
+        uint256 nonce =
+            _useNonce(order.intent.deposit.minter, uint192(order.intent.deposit.accountId));
+
         DepositLibs.validateIntent(
             _hashTypedDataV4(order.intent.hashDepositIntent()),
             order.signature,
             order.intent.deposit.minter,
             order.intent.chainId,
-            broker.account.nonce++,
+            nonce,
             order.intent.nonce
         );
 
@@ -316,12 +322,16 @@ contract Periphery is
 
         _validateBrokerAssetPolicy(order.intent.withdraw.asset, broker, false);
 
+        /// consume nonce. get back keyNonce and shift it to the left by 192 bits to get nonce
+        uint256 nonce =
+            _useNonce(order.intent.withdraw.burner, uint192(order.intent.withdraw.accountId));
+
         DepositLibs.validateIntent(
             _hashTypedDataV4(order.intent.hashWithdrawIntent()),
             order.signature,
             order.intent.withdraw.burner,
             order.intent.chainId,
-            broker.account.nonce++,
+            nonce,
             order.intent.nonce
         );
 
@@ -559,11 +569,6 @@ contract Periphery is
     }
 
     /// @inheritdoc IPeriphery
-    function getAccountNonce(uint256 accountId_) external view returns (uint256) {
-        return brokers[accountId_].account.nonce;
-    }
-
-    /// @inheritdoc IPeriphery
     function setProtocolFeeRecipient(address recipient_)
         external
         whenNotPaused
@@ -724,7 +729,6 @@ contract Periphery is
             isPublic: params_.isPublic,
             state: AccountState.ACTIVE,
             expirationTimestamp: block.timestamp + params_.ttl,
-            nonce: 0,
             feeRecipient: feeRecipient,
             shareMintLimit: params_.shareMintLimit,
             cumulativeSharesMinted: 0,
@@ -782,7 +786,7 @@ contract Periphery is
         brokers[accountId_].account.state = AccountState.ACTIVE;
 
         /// increase nonce to avoid replay attacks
-        brokers[accountId_].account.nonce++;
+        // brokers[accountId_].account.nonce++;
 
         emit AccountUnpaused(accountId_);
     }
@@ -793,13 +797,13 @@ contract Periphery is
     }
 
     /// @inheritdoc IPeriphery
-    function increaseAccountNonce(uint256 accountId_, uint256 increment_) external {
+    function increaseAccountNonce(uint256 accountId_) external {
         if (_ownerOf(accountId_) != msg.sender) revert Errors.Deposit_OnlyAccountOwner();
         if (brokers[accountId_].account.isActive()) {
             revert Errors.Deposit_AccountNotActive();
         }
 
-        brokers[accountId_].account.nonce += increment_ > 1 ? increment_ : 1;
+        _useNonce(msg.sender, uint192(accountId_));
     }
 
     /// @inheritdoc IPeriphery

@@ -131,8 +131,7 @@ interface IPeriphery {
     /// @notice Increases the nonce for a brokerage account
     /// @notice Increases the nonce for a brokerage account
     /// @param accountId The ID of the account to increase the nonce for
-    /// @param increment The amount to increase the nonce by (minimum of 1)
-    function increaseAccountNonce(uint256 accountId, uint256 increment) external;
+    function increaseAccountNonce(uint256 accountId) external;
 
     /// @notice The information for a brokerage account
     function getAccountInfo(uint256 accountId) external returns (BrokerAccountInfo memory);
@@ -151,9 +150,6 @@ interface IPeriphery {
     /// @param params The parameters for the new account
     /// @return The ID of the new account
     function openAccount(CreateAccountParams calldata params) external returns (uint256);
-
-    /// @notice The current nonce for a brokerage account
-    function getAccountNonce(uint256 accountId) external returns (uint256);
 
     /// @notice Grants approval for the deposit module to manage the periphery's balance
     /// @notice Grants infinite approval

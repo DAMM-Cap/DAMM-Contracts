@@ -90,6 +90,10 @@ abstract contract TestBasePeriphery is TestBaseDeposit, DeployPermit2 {
         vm.stopPrank();
     }
 
+    function _packNonce(uint256 accountId, uint256 nonce) internal pure returns (uint256) {
+        return (uint256(accountId) << 64) | nonce;
+    }
+
     function _create_permit2_single_allowance_signature(
         address token,
         uint256 amount,
@@ -269,7 +273,7 @@ abstract contract TestBasePeriphery is TestBaseDeposit, DeployPermit2 {
             chainId: block.chainid,
             relayerTip: relayerTip,
             bribe: bribe,
-            nonce: nonce
+            nonce: _packNonce(accountId, nonce)
         });
     }
 
@@ -289,7 +293,7 @@ abstract contract TestBasePeriphery is TestBaseDeposit, DeployPermit2 {
             chainId: block.chainid,
             relayerTip: relayerTip,
             bribe: bribe,
-            nonce: nonce
+            nonce: _packNonce(accountId, nonce)
         });
 
         (uint8 v, bytes32 r, bytes32 s) =
@@ -341,7 +345,7 @@ abstract contract TestBasePeriphery is TestBaseDeposit, DeployPermit2 {
             chainId: block.chainid,
             relayerTip: relayerTip,
             bribe: bribe,
-            nonce: nonce
+            nonce: _packNonce(accountId, nonce)
         });
     }
 
@@ -361,7 +365,7 @@ abstract contract TestBasePeriphery is TestBaseDeposit, DeployPermit2 {
             chainId: block.chainid,
             relayerTip: relayerTip,
             bribe: bribe,
-            nonce: nonce
+            nonce: _packNonce(accountId, nonce)
         });
 
         (uint8 v, bytes32 r, bytes32 s) =

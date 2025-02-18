@@ -92,7 +92,6 @@ struct BrokerAccountInfo {
     uint256 protocolEntranceFeeInBps; // Protocol's entrance fee (basis points)
     uint256 brokerExitFeeInBps; // Broker's exit fee (basis points)
     uint256 protocolExitFeeInBps; // Protocol's exit fee (basis points)
-    uint256 nonce; // Current nonce for replay protection
     bool transferable; // Whether the broker NFT can be transferred
     bool isPublic; // Whether the broker account can be used by anyone
     AccountState state; // Current state of the account

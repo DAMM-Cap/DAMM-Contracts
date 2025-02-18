@@ -1,6 +1,9 @@
-# DAMM Protocol
+# DAMM Contracts
 
-The DAMM protocol is an ALM (Automated Liquidity Management) protocol that allows the creation of decentralized mutual funds. These mutual funds can be actively managed by operators with varying degrees of autonomy and strategies. 
+The DAMM protocol is an ALM (Automated Liquidity Management) toolkit for decentralized mutual funds.
+
+## This Repository
+Inside this repository you will find contracts for creating and managing mutual funds. Mutual funds are Gnosis Safe Multisigs with extended functionality provided by Zodiac Modules. As of right now, the only DAMM specific module is the Deposit Module. This module is responsible for the tokenization of deposits and withdrawals into the safe. Other zodiac modules can be used to alongside the Deposit Module to enhance the functionality of the mutual fund, for example, the Zodiac Roles Module can be used to allow operators to manage the fund assets.
 
 ## Links
 

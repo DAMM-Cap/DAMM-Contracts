@@ -21,10 +21,6 @@ import {SafeLib} from "@src/libs/SafeLib.sol";
 import {Module} from "@zodiac/core/Module.sol";
 import "@src/interfaces/IDepositModule.sol";
 
-bytes32 constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-bytes32 constant FUND_ROLE = keccak256("FUND_ROLE");
-bytes32 constant CONTROLLER_ROLE = keccak256("CONTROLLER_ROLE");
-
 /// @title DepositModule
 /// @notice Manages deposits and withdrawals from a Fund
 /// @dev The module handles:
@@ -69,15 +65,17 @@ contract DepositModule is
         /// @dev vaultName_ Name of the ERC4626 vault
         /// @dev vaultSymbol_ Symbol of the ERC4626 vault
         /// @dev decimals_ Decimals for the unit of account token
+        /// @dev vaultDecimalsOffset_ Decimals for the ERC4626 vault
         /// @dev fund_ Address of the Fund contract
         /// @dev oracleRouter_ Address of the oracle router for quotes
         (
             string memory vaultName_,
             string memory vaultSymbol_,
             uint8 decimals_,
+            uint8 vaultDecimalsOffset_,
             address fund_,
             address oracleRouter_
-        ) = abi.decode(initializeParams, (string, string, uint8, address, address));
+        ) = abi.decode(initializeParams, (string, string, uint8, uint8, address, address));
 
         if (fund_ == address(0)) {
             revert Errors.Deposit_InvalidConstructorParam();
@@ -102,7 +100,9 @@ contract DepositModule is
         oracleRouter = IPriceOracle(oracleRouter_);
         netDepositLimit = type(uint256).max;
         unitOfAccount = new UnitOfAccount("Liquidity", "UNIT", decimals_);
-        internalVault = new FundShareVault(address(unitOfAccount), vaultName_, vaultSymbol_);
+        internalVault = new FundShareVault(
+            address(unitOfAccount), vaultName_, vaultSymbol_, vaultDecimalsOffset_
+        );
 
         /// @notice approve the internalVault to transfer liquidity to the deposit module
         unitOfAccount.approve(address(internalVault), type(uint256).max);
@@ -126,7 +126,7 @@ contract DepositModule is
     function deposit(address asset, uint256 assetAmountIn, uint256 minSharesOut, address recipient)
         public
         whenNotPaused
-        onlyRole(CONTROLLER_ROLE)
+        onlyRole(DEPOSITOR_ROLE)
         nonReentrant
         rebalanceVault
         returns (uint256 sharesOut, uint256 liquidity)
@@ -179,7 +179,7 @@ contract DepositModule is
     function withdraw(address asset, uint256 sharesToBurn, uint256 minAmountOut, address recipient)
         public
         whenNotPaused
-        onlyRole(CONTROLLER_ROLE)
+        onlyRole(WITHDRAWER_ROLE)
         nonReentrant
         rebalanceVault
         returns (uint256 assetAmountOut, uint256 liquidity)
@@ -213,6 +213,8 @@ contract DepositModule is
         }
 
         IAvatar(fund).transferAssetFromSafeOrRevert(asset, recipient, assetAmountOut);
+
+        emit Withdraw(recipient, asset, msg.sender, sharesToBurn, liquidity, assetAmountOut);
     }
 
     /// @inheritdoc IDepositModule
@@ -220,9 +222,11 @@ contract DepositModule is
         external
         whenNotPaused
         nonReentrant
-        onlyRole(CONTROLLER_ROLE)
+        onlyRole(DILUTER_ROLE)
     {
         internalVault.mintUnbacked(sharesToMint, recipient);
+
+        emit ShareDilution(recipient, msg.sender, sharesToMint);
     }
 
     function _validateAssetPolicy(AssetPolicy memory policy, bool isDeposit) private pure {

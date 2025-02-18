@@ -13,9 +13,9 @@ import {FundShareVault} from "@src/modules/deposit/FundShareVault.sol";
 interface IPeriphery {
     event AccountOpened(
         uint256 indexed accountId,
+        address user,
         uint256 expirationTimestamp,
         uint256 shareMintLimit,
-        address feeRecipient,
         bool transferable,
         bool isPublic
     );
@@ -40,23 +40,25 @@ interface IPeriphery {
 
     event Deposit(
         uint256 indexed accountId,
-        address asset,
-        uint256 assetAmountIn,
+        address indexed recipient,
         uint256 sharesOut,
-        uint256 relayerFee,
-        uint256 bribe,
-        uint16 referralCode
+        /// @dev denominated in shares
+        uint256 netProtocolFee,
+        /// @dev denominated in shares
+        uint256 netBrokerFee
     );
 
     event Withdraw(
         uint256 indexed accountId,
-        address asset,
-        uint256 sharesIn,
-        uint256 netAssetAmountOut,
-        uint256 relayerFee,
-        uint256 bribe,
-        uint16 referralCode
+        address indexed recipient,
+        uint256 assetAmountOut,
+        /// @dev denominated in asset
+        uint256 netProtocolFee,
+        /// @dev denominated in asset
+        uint256 netBrokerFee
     );
+
+    event ManagementFeeTaken(uint256 sharesOut);
 
     /// @notice The address that receives protocol fees
     function protocolFeeRecipient() external returns (address);
@@ -66,26 +68,26 @@ interface IPeriphery {
 
     /// @notice Processes a signed deposit order
     /// @param order The signed deposit intent
-    /// @return sharesOut Amount of vault shares minted
+    /// @return sharesOut Amount of vault shares minted to the receiver
     function intentDeposit(SignedDepositIntent calldata order)
         external
         returns (uint256 sharesOut);
 
     /// @notice Processes a direct deposit order
     /// @param order The deposit order
-    /// @return sharesOut Amount of vault shares minted
+    /// @return sharesOut Amount of vault shares minted to the receiver
     function deposit(DepositOrder calldata order) external returns (uint256 sharesOut);
 
     /// @notice Processes a signed withdrawal order
     /// @param order The signed withdrawal intent
-    /// @return assetAmountOut Amount of asset tokens withdrawn
+    /// @return assetAmountOut Amount of asset tokens withdrawn to the receiver
     function intentWithdraw(SignedWithdrawIntent calldata order)
         external
         returns (uint256 assetAmountOut);
 
     /// @notice Processes a direct withdrawal order
     /// @param order The withdrawal order
-    /// @return assetAmountOut Amount of asset tokens withdrawn
+    /// @return assetAmountOut Amount of asset tokens withdrawn to the receiver
     function withdraw(WithdrawOrder calldata order) external returns (uint256 assetAmountOut);
 
     /// @notice The next token ID that will be used for a new brokerage account
@@ -129,8 +131,7 @@ interface IPeriphery {
     /// @notice Increases the nonce for a brokerage account
     /// @notice Increases the nonce for a brokerage account
     /// @param accountId The ID of the account to increase the nonce for
-    /// @param increment The amount to increase the nonce by (minimum of 1)
-    function increaseAccountNonce(uint256 accountId, uint256 increment) external;
+    function increaseAccountNonce(uint256 accountId) external;
 
     /// @notice The information for a brokerage account
     function getAccountInfo(uint256 accountId) external returns (BrokerAccountInfo memory);
@@ -149,9 +150,6 @@ interface IPeriphery {
     /// @param params The parameters for the new account
     /// @return The ID of the new account
     function openAccount(CreateAccountParams calldata params) external returns (uint256);
-
-    /// @notice The current nonce for a brokerage account
-    function getAccountNonce(uint256 accountId) external returns (uint256);
 
     /// @notice Grants approval for the deposit module to manage the periphery's balance
     /// @notice Grants infinite approval

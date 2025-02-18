@@ -37,7 +37,9 @@ fs_permissions = [{ access = "read", path = "./"}]
 
 
 [profile.default.fuzz]
-runs = 2048
+runs = 32768
+max_test_rejects = 1_000_000
+
 
 [fmt]
 line_length = 100

@@ -217,14 +217,17 @@ contract TestPeripheryPermissions is TestBasePeriphery {
         public
         openAccount(alice, 1000000, false, false)
     {
-        vm.assume(nonce_ > 1);
+        {
+            vm.assume(nonce_ != periphery.nonces(alice, uint192(1)));
 
-        _enableBrokerAssetPolicy(address(fund), 1, address(mockToken1), true);
-        _enableBrokerAssetPolicy(address(fund), 1, address(mockToken1), false);
+            _enableBrokerAssetPolicy(address(fund), 1, address(mockToken1), true);
+            _enableBrokerAssetPolicy(address(fund), 1, address(mockToken1), false);
+        }
 
         SignedDepositIntent memory dOrder = signedDepositIntent(
             1, alice, alicePK, alice, address(mockToken1), mock1Unit, 0, 0, nonce_
         );
+        /// fix this
 
         vm.prank(relayer);
         vm.expectRevert(Errors.Deposit_InvalidNonce.selector);
@@ -233,6 +236,7 @@ contract TestPeripheryPermissions is TestBasePeriphery {
         SignedWithdrawIntent memory wOrder = signedWithdrawIntent(
             1, alice, alicePK, alice, address(mockToken1), mock1Unit, 0, 0, nonce_
         );
+        /// fix this
 
         vm.prank(relayer);
         vm.expectRevert(Errors.Deposit_InvalidNonce.selector);
@@ -273,13 +277,17 @@ contract TestPeripheryPermissions is TestBasePeriphery {
     function test_order_chain_id_must_match(uint256 chainId_)
         public
         openAccount(alice, 1000000, false, false)
-        enableBrokerAssetPolicy(address(fund), 1, address(mockToken1), true)
-        enableBrokerAssetPolicy(address(fund), 1, address(mockToken1), false)
     {
-        vm.assume(chainId_ != block.chainid);
+        {
+            vm.assume(chainId_ != block.chainid);
+
+            _enableBrokerAssetPolicy(address(fund), 1, address(mockToken1), true);
+            _enableBrokerAssetPolicy(address(fund), 1, address(mockToken1), false);
+        }
+        uint256 nonceKey = periphery.nonces(alice, uint192(1));
 
         DepositIntent memory dIntent =
-            unsignedDepositIntent(1, alice, alice, address(mockToken1), mock1Unit, 0, 0, 0);
+            unsignedDepositIntent(1, alice, alice, address(mockToken1), mock1Unit, nonceKey, 0, 0);
 
         dIntent.chainId = chainId_;
 
@@ -290,7 +298,7 @@ contract TestPeripheryPermissions is TestBasePeriphery {
         periphery.intentDeposit(dOrder);
 
         WithdrawIntent memory wIntent =
-            unsignedWithdrawIntent(1, alice, alice, address(mockToken1), mock1Unit, 0, 0, 0);
+            unsignedWithdrawIntent(1, alice, alice, address(mockToken1), mock1Unit, nonceKey, 0, 0);
 
         wIntent.chainId = chainId_;
 
@@ -331,7 +339,15 @@ contract TestPeripheryPermissions is TestBasePeriphery {
         maxApproveAllPermit2(alice)
     {
         SignedDepositIntent memory dOrder = signedDepositIntent(
-            1, alice, alicePK, alice, address(mockToken1), type(uint256).max, 0, 0, 0
+            1,
+            alice,
+            alicePK,
+            alice,
+            address(mockToken1),
+            type(uint256).max,
+            0,
+            0,
+            periphery.nonces(alice, uint192(1))
         );
 
         vm.prank(relayer);
@@ -345,7 +361,15 @@ contract TestPeripheryPermissions is TestBasePeriphery {
         assertTrue(periphery.getAccountInfo(1).isExpired());
 
         SignedWithdrawIntent memory wOrder = signedWithdrawIntent(
-            1, alice, alicePK, alice, address(mockToken1), type(uint256).max, 0, 0, 1
+            1,
+            alice,
+            alicePK,
+            alice,
+            address(mockToken1),
+            type(uint256).max,
+            0,
+            0,
+            periphery.nonces(alice, uint192(1))
         );
 
         vm.prank(relayer);

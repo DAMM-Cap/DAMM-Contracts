@@ -273,7 +273,7 @@ abstract contract TestBasePeriphery is TestBaseDeposit, DeployPermit2 {
             chainId: block.chainid,
             relayerTip: relayerTip,
             bribe: bribe,
-            nonce: _packNonce(accountId, nonce)
+            nonce: nonce
         });
     }
 
@@ -293,7 +293,7 @@ abstract contract TestBasePeriphery is TestBaseDeposit, DeployPermit2 {
             chainId: block.chainid,
             relayerTip: relayerTip,
             bribe: bribe,
-            nonce: _packNonce(accountId, nonce)
+            nonce: nonce
         });
 
         (uint8 v, bytes32 r, bytes32 s) =
@@ -345,7 +345,7 @@ abstract contract TestBasePeriphery is TestBaseDeposit, DeployPermit2 {
             chainId: block.chainid,
             relayerTip: relayerTip,
             bribe: bribe,
-            nonce: _packNonce(accountId, nonce)
+            nonce: nonce
         });
     }
 
@@ -365,7 +365,7 @@ abstract contract TestBasePeriphery is TestBaseDeposit, DeployPermit2 {
             chainId: block.chainid,
             relayerTip: relayerTip,
             bribe: bribe,
-            nonce: _packNonce(accountId, nonce)
+            nonce: nonce
         });
 
         (uint8 v, bytes32 r, bytes32 s) =

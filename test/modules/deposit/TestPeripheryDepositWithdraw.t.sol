@@ -120,12 +120,11 @@ contract TestPeripheryDepositWithdraw is TestBasePeriphery {
 
     function test_deposit_intent(TestDepositIntentFuzz memory fuzz)
         public
-        openAccount(alice, 10000, false, false)
         maxApproveAllPermit2(alice)
     {
         fuzz = boundIntentParams(fuzz);
 
-        uint256 accountId = periphery.peekNextTokenId() - 1;
+        uint256 accountId = _openAccount(alice, 10000, false, false);
         _enableBrokerAssetPolicy(accountManager, accountId, address(mockToken1), true);
 
         mockToken1.mint(alice, fuzz.amount + fuzz.bribe + fuzz.relayerTip);

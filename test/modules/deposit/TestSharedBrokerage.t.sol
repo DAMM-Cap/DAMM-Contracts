@@ -79,12 +79,21 @@ contract TestSharedBrokerage is TestBasePeriphery {
 
         mockToken1.mint(user, 100_000_000 * mock1Unit);
 
-        vm.prank(user);
+        vm.startPrank(relayer);
         periphery.intentDeposit(
             signedDepositIntent(
-                sharedAccountId, user, userPK, user, address(mockToken1), type(uint256).max, 0, 0, 0
+                sharedAccountId,
+                user,
+                userPK,
+                user,
+                address(mockToken1),
+                type(uint256).max,
+                0,
+                0,
+                periphery.nonces(user, uint192(sharedAccountId))
             )
         );
+        vm.stopPrank();
 
         assertEq(mockToken1.balanceOf(user), 0);
         assertEq(mockToken1.balanceOf(address(fund)), 100_000_000 * mock1Unit);
@@ -100,24 +109,41 @@ contract TestSharedBrokerage is TestBasePeriphery {
 
         mockToken1.mint(user, 100_000_000 * mock1Unit);
 
-        vm.prank(user);
+        vm.startPrank(relayer);
         periphery.intentDeposit(
             signedDepositIntent(
-                sharedAccountId, user, userPK, user, address(mockToken1), type(uint256).max, 0, 0, 0
+                sharedAccountId,
+                user,
+                userPK,
+                user,
+                address(mockToken1),
+                type(uint256).max,
+                0,
+                0,
+                periphery.nonces(user, uint192(sharedAccountId))
             )
         );
-
+        vm.stopPrank();
         assertEq(mockToken1.balanceOf(user), 0);
         assertEq(mockToken1.balanceOf(address(fund)), 100_000_000 * mock1Unit);
         assertEq(mockToken1.balanceOf(address(periphery)), 0);
         assertEq(internalVault.balanceOf(user), internalVault.totalSupply());
 
-        vm.prank(user);
+        vm.startPrank(relayer);
         periphery.intentWithdraw(
             signedWithdrawIntent(
-                sharedAccountId, user, userPK, user, address(mockToken1), type(uint256).max, 0, 0, 1
+                sharedAccountId,
+                user,
+                userPK,
+                user,
+                address(mockToken1),
+                type(uint256).max,
+                0,
+                0,
+                periphery.nonces(user, uint192(sharedAccountId))
             )
         );
+        vm.stopPrank();
 
         assertEq(mockToken1.balanceOf(user), 100_000_000 * mock1Unit);
         assertEq(mockToken1.balanceOf(address(fund)), 0);

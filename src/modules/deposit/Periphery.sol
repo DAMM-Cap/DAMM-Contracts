@@ -165,8 +165,8 @@ contract Periphery is
 
         _validateBrokerAssetPolicy(order.intent.deposit.asset, broker, true);
 
-        /// consume nonce. get back keyNonce and shift it to the left by 192 bits to get nonce
-        uint256 nonce =
+        /// consume nonce. get back keyNonce.
+        uint256 keyNonce =
             _useNonce(order.intent.deposit.minter, uint192(order.intent.deposit.accountId));
 
         DepositLibs.validateIntent(
@@ -174,7 +174,7 @@ contract Periphery is
             order.signature,
             order.intent.deposit.minter,
             order.intent.chainId,
-            nonce,
+            keyNonce,
             order.intent.nonce
         );
 
@@ -322,8 +322,8 @@ contract Periphery is
 
         _validateBrokerAssetPolicy(order.intent.withdraw.asset, broker, false);
 
-        /// consume nonce. get back keyNonce and shift it to the left by 192 bits to get nonce
-        uint256 nonce =
+        /// consume nonce. get back keyNonce.
+        uint256 keyNonce =
             _useNonce(order.intent.withdraw.burner, uint192(order.intent.withdraw.accountId));
 
         DepositLibs.validateIntent(
@@ -331,7 +331,7 @@ contract Periphery is
             order.signature,
             order.intent.withdraw.burner,
             order.intent.chainId,
-            nonce,
+            keyNonce,
             order.intent.nonce
         );
 

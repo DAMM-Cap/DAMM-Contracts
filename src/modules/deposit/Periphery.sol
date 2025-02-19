@@ -785,9 +785,6 @@ contract Periphery is
         if (_ownerOf(accountId_) == address(0)) revert Errors.Deposit_AccountDoesNotExist();
         brokers[accountId_].account.state = AccountState.ACTIVE;
 
-        /// increase nonce to avoid replay attacks
-        // brokers[accountId_].account.nonce++;
-
         emit AccountUnpaused(accountId_);
     }
 
@@ -840,6 +837,7 @@ contract Periphery is
         return interfaceId == type(IPeriphery).interfaceId || super.supportsInterface(interfaceId);
     }
 
+    /// @inheritdoc IPeriphery
     function domainSeparatorV4() public view returns (bytes32) {
         return _domainSeparatorV4();
     }

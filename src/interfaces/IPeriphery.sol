@@ -175,4 +175,7 @@ interface IPeriphery {
     /// @dev only the owner can revoke a pauser
     /// @param _pauser The address of the pauser to revoke
     function revokePauser(address _pauser) external;
+
+    /// @notice The domain separator for the periphery
+    function domainSeparatorV4() external returns (bytes32);
 }

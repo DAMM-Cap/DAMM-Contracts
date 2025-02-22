@@ -130,7 +130,7 @@ contract Periphery is
         protocolFeeRecipient = protocolFeeRecipient_;
         lastManagementFeeTimestamp = block.timestamp;
 
-        emit PeripherySetup(msg.sender, owner_, owner_, owner_);
+        emit PeripherySetup(msg.sender, owner_, depositModule_, controller_, protocolFeeRecipient_);
     }
 
     /// @dev this modifier ensures that the account info is zeroed out if the broker has no shares outstanding

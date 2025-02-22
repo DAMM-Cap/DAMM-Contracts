@@ -21,7 +21,11 @@ interface IPeriphery {
     );
 
     event PeripherySetup(
-        address indexed initiator, address indexed owner, address indexed avatar, address target
+        address indexed initiator,
+        address indexed owner,
+        address indexed depositModule,
+        address controller,
+        address protocolFeeRecipient
     );
 
     event ProtocolFeeRecipientUpdated(address oldRecipient, address newRecipient);

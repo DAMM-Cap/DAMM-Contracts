@@ -74,10 +74,14 @@ contract DepositModule is
             uint8 decimals_,
             uint8 vaultDecimalsOffset_,
             address fund_,
+            address owner_,
             address oracleRouter_
-        ) = abi.decode(initializeParams, (string, string, uint8, uint8, address, address));
+        ) = abi.decode(initializeParams, (string, string, uint8, uint8, address, address, address));
 
         if (fund_ == address(0)) {
+            revert Errors.Deposit_InvalidConstructorParam();
+        }
+        if (owner_ == address(0)) {
             revert Errors.Deposit_InvalidConstructorParam();
         }
         if (oracleRouter_ == address(0)) {
@@ -88,12 +92,12 @@ contract DepositModule is
         avatar = fund_;
         target = fund_;
 
-        _transferOwnership(fund_);
+        _transferOwnership(owner_);
         __Pausable_init();
         __ReentrancyGuard_init();
         __AccessControl_init();
 
-        _grantRole(DEFAULT_ADMIN_ROLE, fund_);
+        _grantRole(DEFAULT_ADMIN_ROLE, owner_);
         _grantRole(FUND_ROLE, fund_);
         _grantRole(PAUSER_ROLE, fund_);
 
@@ -107,7 +111,7 @@ contract DepositModule is
         /// @notice approve the internalVault to transfer liquidity to the deposit module
         unitOfAccount.approve(address(internalVault), type(uint256).max);
 
-        emit DepositModuleSetup(msg.sender, fund_, fund_, fund_);
+        emit DepositModuleSetup(msg.sender, owner_, fund_, fund_);
         emit AvatarSet(address(0), fund_);
         emit TargetSet(address(0), fund_);
     }

@@ -81,6 +81,9 @@ contract DepositModule is
         if (fund_ == address(0)) {
             revert Errors.Deposit_InvalidConstructorParam();
         }
+        if (owner_ == address(0)) {
+            revert Errors.Deposit_InvalidConstructorParam();
+        }
         if (oracleRouter_ == address(0)) {
             revert Errors.Deposit_InvalidConstructorParam();
         }

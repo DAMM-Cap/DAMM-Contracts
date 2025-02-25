@@ -47,6 +47,8 @@ library Errors {
     /// Constructor errors
     /// @notice Thrown when a constructor parameter is invalid
     error Deposit_InvalidConstructorParam();
+    /// @notice Thrown when a setup fails
+    error Deposit_SetupFailed();
 
     /// Signature errors
     /// @notice Thrown when a signature verification fails

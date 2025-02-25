@@ -109,7 +109,9 @@ contract DepositModule is
         );
 
         /// @notice approve the internalVault to transfer liquidity to the deposit module
-        unitOfAccount.approve(address(internalVault), type(uint256).max);
+        if (!unitOfAccount.approve(address(internalVault), type(uint256).max)) {
+            revert Errors.Deposit_SetupFailed();
+        }
 
         emit DepositModuleSetup(msg.sender, owner_, fund_, fund_);
         emit AvatarSet(address(0), fund_);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 pragma solidity ^0.8.0;
 
-import {Test} from "forge-std/Test.sol";
+import {Test} from "@forge-std/Test.sol";
 import "@src/oracles/TrustedRateOracle.sol";
 import {MockERC20} from "@test/mocks/MockERC20.sol";
 import {FixedRateOracle} from "@euler-price-oracle/adapter/fixed/FixedRateOracle.sol";

@@ -560,12 +560,12 @@ contract Periphery is
 
     /// @inheritdoc IPeriphery
     function grantApproval(address token_) external onlyRole(CONTROLLER_ROLE) {
-        ERC20(token_).approve(address(depositModule), type(uint256).max);
+        require(ERC20(token_).approve(address(depositModule), type(uint256).max));
     }
 
     /// @inheritdoc IPeriphery
     function revokeApproval(address token_) external onlyRole(CONTROLLER_ROLE) {
-        ERC20(token_).approve(address(depositModule), 0);
+        require(ERC20(token_).approve(address(depositModule), 0));
     }
 
     /// @inheritdoc IPeriphery

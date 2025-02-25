@@ -39,9 +39,14 @@ contract TrustedRateOracle is BaseAdapter, Ownable {
     /// @param _quote The address of the quote asset.
     /// @dev `_rate` must be given in the quote asset's decimals.
     constructor(address _owner, address _base, address _quote) Ownable(_owner) {
+        if (_base == address(0) || _quote == address(0)) {
+            revert Errors.PriceOracle_InvalidConfiguration();
+        }
+
         base = _base;
         quote = _quote;
         lastUpdate = block.timestamp;
+
         /// @dev set the price valid until to the last update timestamp - 1 to avoid immediate validation
         priceValidUntil = lastUpdate - 1;
         uint8 baseDecimals = _getDecimals(base);

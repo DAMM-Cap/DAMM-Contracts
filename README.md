@@ -1,3 +1,17 @@
+# ⚠️ PROOF OF CONCEPT — NOT FOR PRODUCTION USE
+
+> **IMPORTANT DISCLAIMER**
+>
+> This repository and toolkit are a **PROOF OF CONCEPT only**.
+>
+> - It was **NEVER audited**.
+> - It was **NEVER taken into production** and has **not** been used by live DAMM funds.
+> - **Do not use** these contracts in production or with real funds.
+>
+> Live DAMM funds use a **different architecture** (Lagoon-based), not this Periphery/toolkit as shipped in this repository.
+
+---
+
 # DAMM Contracts
 
 Inside this repository you will find the smart contracts of the DAMM Toolkit for creating and managing mutual funds. Mutual funds are Gnosis Safe Multisigs with extended functionality provided by Zodiac Modules. As of right now, the only DAMM specific module is the Deposit Module. This module is responsible for the tokenization of deposits and withdrawals into the safe. Other zodiac modules can be used to alongside the Deposit Module to enhance the functionality of the mutual fund, for example, the Zodiac Roles Module can be used to allow operators to manage the fund assets.
